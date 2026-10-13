@@ -1,0 +1,19 @@
+{
+  "name": "ctf",
+  "displayName": "CT Attack-Defense 场景注入",
+  "version": "0.1.0",
+  "description": "把 CTF/AWD 攻防系统提示词通过 hook 确定性注入 Claude Code：会话常驻执行内核，按用户输入自动路由红队/蓝队场景，深度内容按需加载 Skill",
+  "author": {
+    "name": "taekchef"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ctf",
+    "security",
+    "awd",
+    "red-team",
+    "blue-team",
+    "context-injection"
+  ],
+  "defaultEnabled": true
+}

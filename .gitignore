@@ -1,0 +1,9 @@
+# 提示词记录（用户私有，不入库；智能体只追加不读取）
+prompt-history.txt
+
+# 插件本地状态（不应出现在仓库）
+.state/
+*.log
+
+# Node
+node_modules/

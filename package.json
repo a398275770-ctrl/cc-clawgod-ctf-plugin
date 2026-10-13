@@ -1,0 +1,14 @@
+{
+  "name": "cc-clawgod-ctf-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CTF/AWD 攻防场景注入插件（开发仓库；插件本体在 plugin/）",
+  "scripts": {
+    "test": "node --test tests/",
+    "lint": "node --test tests/lint.test.js",
+    "bump": "node scripts/bump-version.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

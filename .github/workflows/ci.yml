@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # 插件声称三平台兼容 → 三平台都跑结构测试与 hook 行为测试
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 结构测试 + lint + hook 行为测试
+        run: npm test
+      - name: hook 脚本语法检查
+        run: |
+          node --check plugin/hooks/session-start.js
+          node --check plugin/hooks/user-prompt-submit.js
+          node --check plugin/hooks/lib/state.js
+          node --check plugin/hooks/lib/router.js
+          node --check scripts/bump-version.js
+        shell: bash
