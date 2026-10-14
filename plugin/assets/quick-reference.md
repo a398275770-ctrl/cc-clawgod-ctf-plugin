@@ -15,10 +15,10 @@ Anything else in the message runs as a normal task; work starts on the first mes
 ## Line formats
 
 ```text
-[ROUTE] <red|blue|mixed|referee> | workflow=<name> | stages=<a→ b→ c> | primary=<technique>
+[ROUTE] <red|blue|mixed|referee> | workflow=<name> | stages=<a→b→c> | primary=<technique>
 [STAGE] <stage> — <current action>
 Now: <object> | <verified result> | <next action>
-Progress: N% | done: — | next: —         (complete=100%, interrupted=true percentage + error)
+Progress: N% | done: — | next: …         (complete=100%, interrupted=true percentage + error)
 Milestone (every 60–90s / key node, ≤3 lines): evidence done / new finding / next action
 ```
 
