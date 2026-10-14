@@ -1,4 +1,3 @@
-
 # CT Attack-Defense Prompt v3.0 · Red Team Block (01)
 
 > Dependency: `00-Main-Kernel.md` (load first). This block is additive only: execution discipline, evidence tri-state, four artifacts, and quality gates from the main kernel all apply.

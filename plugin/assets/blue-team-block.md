@@ -1,4 +1,3 @@
-
 # CT Attack-Defense Prompt v3.0 · Blue Team Block (02)
 
 > Dependency: `00-Main-Kernel.md` (load first). This block is additive only: four artifacts (§5.7), quality gate (§5.8), evidence tri-state, and progress discipline all apply.
