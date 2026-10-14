@@ -17,6 +17,14 @@ const PLUGIN = path.join(ROOT, "plugin");
 // 每个 case 用独立临时状态目录，互不污染
 function runHook(hook, opts = {}) {
   const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "ctf-plugin-test-"));
+  if (opts.enabled !== false) {
+    // 默认态是 disabled（用户决策 A）；行为测试显式预置 enabled: true
+    fs.writeFileSync(
+      path.join(stateDir, "plugin-state.json"),
+      JSON.stringify({ enabled: true }),
+      "utf8"
+    );
+  }
   const r = spawnSync("node", [path.join(PLUGIN, "hooks", hook)], {
     input: opts.stdin ?? "",
     encoding: "utf8",
@@ -36,25 +44,38 @@ function parseHookStdout(r) {
   return JSON.parse(r.stdout);
 }
 
-test("session-start 默认注入常驻层（defaultEnabled=true）", () => {
-  const r = runHook("session-start.js");
+test("session-start 默认关闭：不注入场景，只一次性引导开启", () => {
+  // 用户决策 A（requirements.md #13）：默认禁用、显式开启。
+  const r = runHook("session-start.js", { enabled: false });
   const out = parseHookStdout(r);
   assert.ok(out, "应有 JSON 输出");
   assert.equal(out.hookSpecificOutput.hookEventName, "SessionStart");
   const ctx = out.hookSpecificOutput.additionalContext;
-  assert.ok(ctx.includes("Execution Kernel") || ctx.includes("执行内核"), "应含内核规则");
+  assert.ok(ctx.includes("/ctf:on"), "默认态应引导用户开启");
+  assert.ok(!ctx.includes("Execution Kernel"), "默认态不得注入场景规则");
+  // 二次运行完全静默（引导只出现一次）
+  const r2 = runHook("session-start.js", { env: { CLAUDE_PLUGIN_DATA: r.stateDir } });
+  assert.equal(r2.stdout.trim(), "", "二次运行应完全静默");
+});
+
+test("session-start 开启后注入常驻层（含内核规则）", () => {
+  const r = runHook("session-start.js");
+  // 预置开启
+  require("node:fs").writeFileSync(
+    require("node:path").join(r.stateDir, "plugin-state.json"),
+    JSON.stringify({ enabled: true }),
+    "utf8"
+  );
+  const r2 = runHook("session-start.js", { env: { CLAUDE_PLUGIN_DATA: r.stateDir } });
+  const out = parseHookStdout(r2);
+  const ctx = out.hookSpecificOutput.additionalContext;
+  assert.ok(ctx.includes("执行内核"), "开启后应含内核规则");
   assert.ok(ctx.length <= 10000, "不得超硬上限");
   assert.ok(out.systemMessage, "状态可见性：应有 systemMessage");
-  // 首启引导恰好出现一次
-  assert.ok(ctx.includes("/ctf:on"), "首启应含引导");
-  // 二次运行不再引导
-  const r2 = runHook("session-start.js", { env: { CLAUDE_PLUGIN_DATA: r.stateDir } });
-  const out2 = parseHookStdout(r2);
-  assert.ok(!out2.hookSpecificOutput.additionalContext.includes("/ctf:on"), "引导只出现一次");
 });
 
 test("session-start 在 off 时静默退出", () => {
-  const r = runHook("session-start.js", { env: { CTF_TEST_STATE: "off" } });
+  const r = runHook("session-start.js", { enabled: false });
   // 预置 off 状态：先跑一次开启再写 off
   const stateDir = r.stateDir;
   fs.writeFileSync(
@@ -132,7 +153,7 @@ test("user-prompt-submit 场景切换提示（防串味）", () => {
 test("user-prompt-submit off 时静默", () => {
   const r = runHook("user-prompt-submit.js", {
     stdin: JSON.stringify({ prompt: "帮我 pwn 它" }),
-    env: { CTF_TEST_PRESEED_OFF: "1" },
+    enabled: false,
   });
   const stateDir = r.stateDir;
   fs.writeFileSync(

@@ -103,6 +103,32 @@ test("五个命令齐全且带 description（补全展示用）", () => {
   }
 });
 
+test("命令统一走 ctl.js（禁止内联 node -e 写状态）", () => {
+  // 真实踩坑：内联 node -e 依赖 CLAUDE_PLUGIN_DATA，命令环境里没有该变量，
+  // 状态被误写到 cwd/.state/，开关完全失效。ctl.js 从 __dirname 推导路径，不依赖环境变量。
+  assert.ok(fs.existsSync(path.join(PLUGIN, "commands", "ctl.js")), "缺少 commands/ctl.js");
+  for (const c of ["on", "off", "red", "blue", "status"]) {
+    const body = read(path.join(PLUGIN, "commands", `${c}.md`));
+    assert.ok(
+      body.includes("${CLAUDE_PLUGIN_ROOT}/commands/ctl.js"),
+      `/ctf:${c} 未调用 ctl.js（状态操作必须走统一入口）`
+    );
+    assert.ok(!/node -e/.test(body), `/ctf:${c} 仍含内联 node -e（会写错状态路径）`);
+  }
+});
+
+test("ctl.js 零第三方依赖且复用 state.js", () => {
+  const src = read(path.join(PLUGIN, "commands", "ctl.js"));
+  const requires = [...src.matchAll(/require\(["']([^"']+)["']\)/g)].map((m) => m[1]);
+  for (const r of requires) {
+    assert.ok(
+      r.startsWith("node:") || r.startsWith(".") || r.startsWith("/") || r.startsWith(".."),
+      `ctl.js 引入非内置依赖 \`${r}\``
+    );
+  }
+  assert.ok(src.includes("hooks"), "ctl.js 应复用 hooks/lib/state.js");
+});
+
 test("hook 源码不写插件安装目录做状态存储", () => {
   // 状态读写全部收敛在 lib/state.js，且必须优先 CLAUDE_PLUGIN_DATA
   const stateSrc = read(path.join(PLUGIN, "hooks", "lib", "state.js"));

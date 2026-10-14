@@ -28,7 +28,24 @@ function output(context, systemMessage) {
 function main() {
   const state = getState();
   if (!state.enabled) {
-    // 软开关关闭：静默退出。/clear 后 hook 再次触发时同样不注入，会话保持干净。
+    // 软开关关闭（默认态）：不注入场景内容，只做一次性「如何开启」引导。
+    // 引导同样走 additionalContext 通道，但内容只是插件使用说明，不是场景规则——
+    // 不改变模型行为，只告诉用户开关的存在（用户决策 A：默认禁用、显式开启）。
+    if (isFirstRun()) {
+      markFirstRunDone();
+      process.stdout.write(JSON.stringify({
+        hookSpecificOutput: {
+          hookEventName: "SessionStart",
+          additionalContext:
+            "[CTF 插件已安装，默认关闭] 本插件为 CTF/AWD/红蓝演练提供场景注入：\n" +
+            "- 输入 /ctf:on 开启（开启后自动识别红队/蓝队场景并注入对应纪律）\n" +
+            "- 输入 /ctf:status 查看状态；/ctf:off 可随时关闭\n" +
+            "- 关闭前：/ctf:red 强制红队 · /ctf:blue 强制蓝队\n" +
+            "本提示只出现一次，不会修改你的任何设置。",
+        },
+        systemMessage: "[CTF] 插件已安装，默认关闭（/ctf:on 开启）",
+      }));
+    }
     process.exit(0);
   }
 

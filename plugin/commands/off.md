@@ -6,7 +6,7 @@ allowed-tools: Bash(node:*)
 关闭 CTF 场景注入。执行下面的命令把插件状态置为关闭：
 
 ```bash
-node -e "const fs=require('fs'),path=require('path');const dir=process.env.CLAUDE_PLUGIN_DATA||path.join(process.env.CLAUDE_PLUGIN_ROOT||'.','.state');fs.mkdirSync(dir,{recursive:true});const f=path.join(dir,'plugin-state.json');let s={};try{s=JSON.parse(fs.readFileSync(f,'utf8'))}catch{};s.enabled=false;s.forcedScene=null;fs.writeFileSync(f,JSON.stringify(s,null,2));console.log('disabled')"
+node "${CLAUDE_PLUGIN_ROOT}/commands/ctl.js" off
 ```
 
 关闭成功后告知用户：

@@ -3,18 +3,35 @@
 /**
  * lib/state.js — 插件状态管理（软开关 + 场景记忆）
  *
- * 状态文件放 CLAUDE_PLUGIN_DATA（跨插件更新持久）；
- * 取不到该变量时退化到插件目录（仅影响状态持久性，不影响功能）。
+ * 状态目录优先级（必须与 hook、命令两条路径完全一致，否则开关失效）：
+ *   1. env CLAUDE_PLUGIN_DATA（hook 执行时 Claude Code 注入）
+ *   2. ~/.claude/plugins/data/<plugin-id>/（命令执行时无 env，按官方规则推导）
+ *   3. 插件目录 .state/（最后兜底；不可写也不影响功能，只是状态不持久）
+ *
+ * 真实踩坑（2026-10-13）：命令里内联 node -e 无 env 时把状态写进 cwd/.state/，
+ * 与 hook 读的位置不一致，/ctf:off 完全失效。
  */
 
 const fs = require("node:fs");
+const os = require("node:os");
 const path = require("node:path");
 
-const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, "..");
+// state.js 位于 <plugin-root>/hooks/lib/，上溯两级即插件根。
+// 不再依赖 CLAUDE_PLUGIN_ROOT（命令执行环境没有该变量）。
+const PLUGIN_ROOT = path.resolve(__dirname, "..", "..");
+
+// 插件 id = "<plugin-name>@<marketplace-name>"，对应 data 目录名
+// （与官方安装实例一致：~/.claude/plugins/data/ctf-cc-clawgod-ctf-plugin/）
+const PLUGIN_ID = process.env.CLAUDE_PLUGIN_ID || "ctf-cc-clawgod-ctf-plugin";
+
+function defaultDataDir() {
+  return path.join(os.homedir(), ".claude", "plugins", "data", PLUGIN_ID);
+}
 
 function stateDir() {
   const candidates = [
     process.env.CLAUDE_PLUGIN_DATA,
+    defaultDataDir(),
     path.join(PLUGIN_ROOT, ".state"),
   ].filter(Boolean);
   for (const dir of candidates) {
@@ -56,9 +73,10 @@ function writeJson(name, value) {
 
 const PLUGIN_STATE = "plugin-state.json";
 
-// 默认状态：开启（defaultEnabled），无记忆场景
+// 默认状态：关闭（默认禁用、显式开启——用户决策 A，见 requirements.md 决策 #13）。
+// 用户安装插件是意图，但「自动改变模型行为」须经一次显式同意（/ctf:on）。
 function getState() {
-  return readJson(PLUGIN_STATE, { enabled: true, forcedScene: null, lastScene: null });
+  return readJson(PLUGIN_STATE, { enabled: false, forcedScene: null, lastScene: null });
 }
 
 function setState(patch) {
