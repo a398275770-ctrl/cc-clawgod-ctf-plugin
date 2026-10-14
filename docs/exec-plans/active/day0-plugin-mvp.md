@@ -20,14 +20,14 @@
 - [x] 需求澄清与技术栈确认（§3.2），落盘 `docs/requirements.md`
 - [x] 框架判定（§3.3）：其他类型，跳过 Tauri CI 三问，落盘 `docs/CI.md`
 - [x] 源提示词乱码修复（GBK→UTF-8 还原），转换清单交用户过目
-- [ ] 模块拆分：把修复后的提示词切成内核精简版 / 内核全文 / 红队块 / 蓝队块
-- [ ] 插件骨架：`.claude-plugin/`、`hooks/`、`skills/`、`commands/`
-- [ ] SessionStart hook（常驻层 + 开关检查 + 首次引导）
-- [ ] UserPromptSubmit hook（路由层 + 全赛道词表 + 场景切换提示）
-- [ ] 5 个命令（on/off/red/blue/status）
-- [ ] 3 个 Skill（内核全文/红队/蓝队，description 精心撰写）
-- [ ] `AGENTS.md`（≤100 行）、`ARCHITECTURE.md`、`docs/` 各规范文件
-- [ ] 结构测试 + lint（第一批品味不变式）+ CI 骨架
+- [x] 模块拆分：把修复后的提示词切成内核精简版 / 内核全文 / 红队块 / 蓝队块
+- [x] 插件骨架：`.claude-plugin/`、`hooks/`、`skills/`、`commands/`
+- [x] SessionStart hook（常驻层 + 开关检查 + 首次引导）
+- [x] UserPromptSubmit hook（路由层 + 全赛道词表 + 场景切换提示）
+- [x] 5 个命令（on/off/red/blue/status）
+- [x] 3 个 Skill（内核全文/红队/蓝队，description 精心撰写）
+- [x] `AGENTS.md`（≤100 行）、`ARCHITECTURE.md`、`docs/` 各规范文件
+- [x] 结构测试 + lint（第一批品味不变式）+ CI 骨架
 - [x] 本地安装实测（2026-10-14 完成，见下）
   - marketplace 注册 + 安装成功：`ctf@cc-clawgod-ctf-plugin` v0.1.0（scope: user）
   - 安装路径：`~/.claude/plugins/cache/cc-clawgod-ctf-plugin/ctf/0.1.0`（marketplace 会把 plugin/ 内容平铺到缓存根）
@@ -35,8 +35,8 @@
   - UserPromptSubmit 实测：红队词命中注入 / 蓝队词命中+场景切换提示 / 闲聊静默 / 触发词静默
   - 开关实测：off → session-start 输出 0 字节（连跑两次含 /clear 模拟）；on → 恢复 4293 字符
   - 首启引导实测：第一次 1 次、第二次 0 次（只出现一次生效）
-- [ ] 版本一致性：plugin.json 单一声明点 + bump 脚本
-- [ ] `prompt-history.txt` 机制落地
+- [x] 版本一致性：plugin.json 单一声明点 + bump 脚本
+- [x] `prompt-history.txt` 机制落地
 
 ## 决策日志
 
