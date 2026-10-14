@@ -161,11 +161,23 @@ test("router 赛道覆盖抽查", () => {
     ["出个 web 题并写 writeup", "referee"],
     ["fscan 扫内网", "red"],
     ["auditd 监控 flag 读取", "blue"],
+    // 回归：日常技术表述不得误命中蓝队（真实会话踩过：「API 响应」命中「响应」）
+    ["API 响应超时，请检查网络", null],
+    ["HTTP 响应头里有什么", null],
+    ["响应式设计怎么做", null],
+    ["等待 API 响应 · 将在 2分34秒 后重试", null],
+    // 上下文明确的蓝队词仍须命中
+    ["应急响应演练怎么做", "blue"],
+    ["排查一下后门", "blue"],
   ];
   const { route } = require(path.join(PLUGIN, "hooks", "lib", "router.js"));
   for (const [input, expected] of cases) {
     const hit = route(input);
-    assert.ok(hit, `${input} 应命中`);
-    assert.equal(hit.scene, expected, `${input} 应路由到 ${expected}`);
+    if (expected === null) {
+      assert.equal(hit, null, `${input} 不应命中任何场景（防误判回归）`);
+    } else {
+      assert.ok(hit, `${input} 应命中`);
+      assert.equal(hit.scene, expected, `${input} 应路由到 ${expected}`);
+    }
   }
 });
