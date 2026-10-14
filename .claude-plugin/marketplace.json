@@ -1,7 +1,7 @@
 {
   "name": "cc-clawgod-ctf-plugin",
   "owner": {
-    "name": "taekchef"
+    "name": "a398275770-ctrl"
   },
   "description": "CTF/AWD 攻防场景注入插件：hook 确定性注入执行内核，按用户输入自动路由红队/蓝队",
   "plugins": [
@@ -9,11 +9,18 @@
       "name": "ctf",
       "source": "./plugin",
       "description": "把 CTF 攻防系统提示词通过 hook 注入 Claude Code：会话常驻执行内核，自动路由红队/蓝队场景，深度内容按需加载 Skill",
-      "homepage": "https://github.com/taekchef/cc-clawgod-ctf-plugin",
-      "repository": "https://github.com/taekchef/cc-clawgod-ctf-plugin",
+      "homepage": "https://github.com/a398275770-ctrl/cc-clawgod-ctf-plugin",
+      "repository": "https://github.com/a398275770-ctrl/cc-clawgod-ctf-plugin",
       "license": "MIT",
       "category": "development",
-      "tags": ["ctf", "security", "awd", "red-team", "blue-team", "context-injection"]
+      "tags": [
+        "ctf",
+        "security",
+        "awd",
+        "red-team",
+        "blue-team",
+        "context-injection"
+      ]
     }
   ]
 }
